@@ -30,13 +30,16 @@ Requirements:
 #include <algorithm>
 #include <string>
 
-struct Player
+class Player
 {
+private:
 	std::string name;
 	std::string title = "";
 	int wins = 0, losses = 0, currWinStreak = 0;
 	bool streaking = false;
 
+
+public:
 	Player() {};
 	~Player() {};
 
@@ -48,6 +51,64 @@ struct Player
 		, currWinStreak(0)
 	{
 	};
+
+	std::string getName()
+	{
+		return name;
+	}
+
+	std::string getTitle()
+	{
+		return title;
+	}
+
+	void setTitle(std::string newTitle)
+	{
+		title = newTitle;
+	}
+
+	void addWin()
+	{
+		wins++;
+		currWinStreak++;
+	}
+
+	void addLoss()
+	{
+		losses++;
+	}
+
+	int getWins()
+	{
+		return wins;
+	}
+
+	int getLosses()
+	{
+		return losses;
+	}
+
+	int getCurrWinStreak()
+	{
+		return currWinStreak;
+	}
+
+	void setCurrWinStreak(int amount)
+	{
+		currWinStreak = amount;
+	}
+
+	bool getStreaking()
+	{
+		return streaking;
+	}
+
+	void setStreaking(bool flag)
+	{
+		streaking = flag;
+	}
+
+
 };
 
 struct Board
@@ -106,7 +167,7 @@ private:
 		int count = 0;
 		for (int i = 0; i < board.spotCheck.size(); ++i)
 		{
-			if (board.spotCheck[i] == true)
+			if (checkSpot(i))
 			{
 				count++;
 			}
@@ -164,7 +225,7 @@ private:
 
 			for (int i = 0; i < playerPool.size(); ++i)
 			{
-				if (playerNameInput == playerPool[i].name)
+				if (playerNameInput == playerPool[i].getName())
 				{
 					currPlayer1 = &playerPool[i];
 					break;
@@ -184,7 +245,7 @@ private:
 
 			for (int i = 0; i < playerPool.size(); ++i)
 			{
-				if (playerNameInput2 == playerPool[i].name)
+				if (playerNameInput2 == playerPool[i].getName())
 				{
 					currPlayer2 = &playerPool[i];
 					break;
@@ -216,60 +277,58 @@ private:
 
 		if (turn)
 		{
-			currPlayer1->currWinStreak++;
-			if (currPlayer1->streaking == false)
+			currPlayer1->addWin();
+			if (currPlayer1->getStreaking() == false)
 			{
-				currPlayer1->streaking = true;
+				currPlayer1->setStreaking(true);
 			}
-			if (currPlayer1->currWinStreak == 5)
+			if (currPlayer1->getCurrWinStreak() == 5)
 			{
-				if (currPlayer1->title != "Yokozuna ")
+				if (currPlayer1->getTitle() != "Yokozuna ")
 				{
-					currPlayer1->title = "Yokozuna ";
+					currPlayer1->setTitle("Yokozuna ");
 				}
 			}
-			currPlayer1->wins++;
-			std::cout << currPlayer1->title << currPlayer1->name << "'s Wins: " << currPlayer1->wins << "  Losses: " << currPlayer1->losses << "  Current Win Streak: " << currPlayer1->currWinStreak << std::endl;
+			std::cout << currPlayer1->getTitle() << currPlayer1->getName() << "'s Wins: " << currPlayer1->getWins() << "  Losses: " << currPlayer1->getLosses() << "  Current Win Streak: " << currPlayer1->getCurrWinStreak() << std::endl;
 
-			if (currPlayer2->streaking == true)
+			if (currPlayer2->getStreaking() == true)
 			{
-				currPlayer2->streaking = false;
-				currPlayer2->currWinStreak = 0;
+				currPlayer2->setStreaking(false);
+				currPlayer2->setCurrWinStreak(0);
 			}
-			currPlayer2->losses++;
-			std::cout << currPlayer2->title << currPlayer2->name << "'s Wins: " << currPlayer2->wins << "  Losses: " << currPlayer2->losses << "  Current Win Streak: " << currPlayer2->currWinStreak << std::endl;
+			currPlayer2->addLoss();
+			std::cout << currPlayer2->getTitle() << currPlayer2->getName() << "'s Wins: " << currPlayer2->getWins() << "  Losses: " << currPlayer2->getLosses() << "  Current Win Streak: " << currPlayer2->getCurrWinStreak() << std::endl;
 		}
 		else
 		{
-			currPlayer2->currWinStreak++;
-			if (currPlayer2->streaking == false)
+			currPlayer2->addWin();
+			if (currPlayer2->getStreaking() == false)
 			{
-				currPlayer2->streaking = true;
+				currPlayer2->setStreaking(true);
 			}
-			if (currPlayer2->currWinStreak == 5)
+			if (currPlayer2->getCurrWinStreak() == 5)
 			{
-				if (currPlayer2->title != "Yokozuna ")
+				if (currPlayer2->getTitle() != "Yokozuna ")
 				{
-					currPlayer2->title = "Yokozuna ";
+					currPlayer2->setTitle("Yokozuna ");
 				}
 			}
-			currPlayer2->wins++;
-			std::cout << currPlayer2->title << currPlayer2->name << "'s Wins: " << currPlayer2->wins << "  Losses: " << currPlayer2->losses << "  Current Win Streak: " << currPlayer2->currWinStreak << std::endl;
+			std::cout << currPlayer2->getTitle() << currPlayer2->getName() << "'s Wins: " << currPlayer2->getWins() << "  Losses: " << currPlayer2->getLosses() << "  Current Win Streak: " << currPlayer2->getCurrWinStreak() << std::endl;
 
-			if (currPlayer1->streaking == true)
+			if (currPlayer1->getStreaking() == true)
 			{
-				currPlayer1->streaking = false;
-				currPlayer1->currWinStreak = 0;
+				currPlayer1->setStreaking(false);
+				currPlayer1->setCurrWinStreak(0);
 			}
-			currPlayer1->losses++;
-			std::cout << currPlayer1->title << currPlayer1->name << "'s Wins: " << currPlayer1->wins << "  Losses: " << currPlayer1->losses << "  Current Win Streak: " << currPlayer1->currWinStreak << std::endl;
+			currPlayer1->addLoss();
+			std::cout << currPlayer1->getTitle() << currPlayer1->getName() << "'s Wins: " << currPlayer1->getWins() << "  Losses: " << currPlayer1->getLosses() << "  Current Win Streak: " << currPlayer1->getCurrWinStreak() << std::endl;
 		}
 
 		if (checkCat())
 		{
 			std::cout << "Game was a tie" << std::endl;
-			std::cout << currPlayer1->title << currPlayer1->name << "'s Wins: " << currPlayer1->wins << "  Losses: " << currPlayer1->losses << "  Current Win Streak: " << currPlayer1->currWinStreak << std::endl;
-			std::cout << currPlayer2->title << currPlayer2->name << "'s Wins: " << currPlayer2->wins << "  Losses: " << currPlayer2->losses << "  Current Win Streak: " << currPlayer2->currWinStreak << std::endl;
+			std::cout << currPlayer1->getTitle() << currPlayer1->getName() << "'s Wins: " << currPlayer1->getWins() << "  Losses: " << currPlayer1->getLosses() << "  Current Win Streak: " << currPlayer1->getCurrWinStreak() << std::endl;
+			std::cout << currPlayer2->getTitle() << currPlayer2->getName() << "'s Wins: " << currPlayer2->getWins() << "  Losses: " << currPlayer2->getLosses() << "  Current Win Streak: " << currPlayer2->getCurrWinStreak() << std::endl;
 		}
 	}
 
@@ -321,7 +380,7 @@ private:
 			std::cout << std::endl;
 			for (int i = 0; i < playerPool.size(); ++i)
 			{
-				std::cout << playerPool[i].title << playerPool[i].name << "  Wins: " << playerPool[i].wins << "  Losses: " << playerPool[i].losses << "  Current Win Streak: " << playerPool[i].currWinStreak << std::endl;
+				std::cout << playerPool[i].getTitle() << playerPool[i].getName() << "  Wins: " << playerPool[i].getWins() << "  Losses: " << playerPool[i].getLosses() << "  Current Win Streak: " << playerPool[i].getCurrWinStreak() << std::endl;
 			}
 			anotherGame = false;
 			end = true;
@@ -336,7 +395,7 @@ private:
 
 			if (turn)
 			{
-				std::cout << currPlayer1->title << currPlayer1->name << "(X) Please enter your first move:" << std::endl;
+				std::cout << currPlayer1->getTitle() << currPlayer1->getName() << "(X) Please enter your first move:" << std::endl;
 				replace();
 				if (checkWin())
 				{
@@ -347,7 +406,7 @@ private:
 			}
 			else
 			{
-				std::cout << currPlayer2->title << currPlayer2->name << "(O) Please enter your first move:" << std::endl;
+				std::cout << currPlayer2->getTitle() << currPlayer2->getName() << "(O) Please enter your first move:" << std::endl;
 				replace();
 				if (checkWin())
 				{
