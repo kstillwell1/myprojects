@@ -1,3 +1,5 @@
+// need to finished implementing the changes on the connect 4 class
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -203,9 +205,10 @@ private:
 	bool spotCheck[6][7];
 
 public:
-	void printBoard()
+	void printBoard() override
 	{
 		std::cout << std::endl;
+		std::cout << "0 | 1 | 2 | 3 | 4 | 5 | 6" << std::endl;
 		std::cout << board[0][0] << " | " << board[0][1] << " | " << board[0][2] << " | " << board[0][3] << " | " << board[0][4] << " | " << board[0][5] << " | " << board[0][6] << std::endl;
 		std::cout << board[1][0] << " | " << board[1][1] << " | " << board[1][2] << " | " << board[1][3] << " | " << board[1][4] << " | " << board[1][5] << " | " << board[1][6] << std::endl;
 		std::cout << board[2][0] << " | " << board[2][1] << " | " << board[2][2] << " | " << board[2][3] << " | " << board[2][4] << " | " << board[2][5] << " | " << board[2][6] << std::endl;
@@ -214,11 +217,49 @@ public:
 		std::cout << board[5][0] << " | " << board[5][1] << " | " << board[5][2] << " | " << board[5][3] << " | " << board[5][4] << " | " << board[5][5] << " | " << board[5][6] << std::endl;
 		std::cout << std::endl;
 	}
-	bool checkTie();
-	bool checkSpot(int spot);
-	void replace(bool turn);
-	bool checkWin();
-	void setBoard()
+
+	bool checkTie() override;
+	bool checkSpot(int spot) override;
+	void replace(bool turn) override;
+
+	bool checkWin() override
+	{
+		for (int i = 0; i < 6; i++)
+		{
+			for (int j = 0; j < 4; j++)
+			{
+				if (board[i][j] == board[i][j + 1] && board[i][j] == board[i][j + 2] && board[i][j] == board[i][j + 3])
+					return true;
+			}
+		}
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 7; j++)
+			{
+				if (board[i][j] == board[i + 1][j] && board[i][j] == board[i + 2][j] && board[i][j] == board[i + 3][j])
+					return true;
+			}
+		}
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 4; j++)
+			{
+				if (board[i][j] == board[i + 1][j + 1] && board[i][j] == board[i + 2][j + 2] && board[i][j] == board[i + 3][j + 3])
+					return true;
+			}
+		}
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 3; j < 7; j++)
+			{
+				if (board[i][j] == board[i + 1][j - 1] && board[i][j] == board[i + 2][j - 2] && board[i][j] == board[i + 3][j - 3])
+					return true;
+			}
+		}
+		return false;
+	}
+
+	void setBoard() override 
 	{
 		int num = '0';
 		for (int i = 0; i < 6; ++i)
