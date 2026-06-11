@@ -1,30 +1,3 @@
-/*
-Task: Implementation of Persistent Player Profiles & Multi-Match Sessions
-
-Objective: Upgrade the current single-match execution into a persistent "Session" that can track player statistics across multiple consecutive games.
-
-Requirements:
-
-	Player Registration: When the program starts, the user must be able to register a pool of players by entering their names.
-
-	Match Setup: Before each match begins, the program must prompt the user to select two players from the registered pool to compete in the current round.
-
-	Dynamic Turn Announcements: Instead of hardcoded "Player 1" or "Player 2" prompts, the game must identify the current player by their name (e.g., "Alice, please enter your move").
-
-	The "Yokozuna" Promotion: The system must track each player's win streak across multiple games. If a player reaches a win streak of 5 consecutive wins, they are permanently promoted to the rank of "Yokozuna." Once promoted, their name must always be prefixed with this title for the remainder of the program's execution (e.g., "Yokozuna Alice").
-
-	Session Statistics: At the conclusion of every match, the program must output a summary for the two participants, displaying:
-		Their Name (including any titles).
-		Total games won during this session.
-		Total games lost during this session.
-		Their current active win streak.
-
-	Session Loop: After a match ends and stats are displayed, the program should ask if the user wants to play another match with the existing player pool or exit the program.
-
-	Note: create update stats function and plug in to both checkWin and checkCat functions
-
-*/
-
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -107,14 +80,157 @@ public:
 	{
 		streaking = flag;
 	}
-
-
 };
 
-struct Board
+class IGame
 {
-	std::vector<char> board;
-	std::vector<bool> spotCheck;
+public:
+	virtual void printBoard() = 0;
+	virtual bool checkTie() = 0;
+	virtual bool checkSpot(int spot) = 0;
+	virtual void replace(bool turn) = 0;
+	virtual bool checkWin() = 0;
+	virtual void setBoard() = 0;
+	virtual ~IGame() {}
+};
+
+class TTT : public IGame
+{
+private:
+
+	int rows[9] = { 0, 0, 0, 1, 1, 1, 2, 2, 2 };
+	int cols[9] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
+
+	char board[3][3];
+	bool spotCheck[3][3];
+
+public:
+
+	void printBoard() override
+	{
+		std::cout << std::endl;
+		std::cout << board[0][0] << " | " << board[0][1] << " | " << board[0][2] << std::endl;
+		std::cout << "---------" << std::endl;
+		std::cout << board[1][0] << " | " << board[1][1] << " | " << board[1][2] << std::endl;
+		std::cout << "---------" << std::endl;
+		std::cout << board[2][0] << " | " << board[2][1] << " | " << board[2][2] << std::endl;
+		std::cout << std::endl;
+	}
+
+	bool checkTie() override
+	{
+		int count = 0;
+		for (int i = 0; i < 3; i++)
+			for (int j = 0; j < 3; j++)
+				if (spotCheck[i][j] == true)
+					count++;
+
+		if (count == 9)
+			return true;
+
+		return false;
+	}
+
+	bool checkSpot(int spot) override
+	{
+		if (spotCheck[rows[spot]][cols[spot]] == true)
+			return true;
+		return false;
+	}
+
+	void replace(bool turn) override
+	{
+		int input;
+		std::cin >> input;
+		if (input >= 9 || input <= -1)
+		{
+			std::cout << "Invalid input, please try again: " << std::endl;
+			replace(turn);
+		}
+		else
+		{
+			if (!checkSpot(input))
+			{
+				board[rows[input]][cols[input]] = turn ? 'X' : 'O';
+				spotCheck[rows[input]][cols[input]] = true;
+			}
+			else
+			{
+				std::cout << "Invalid input, please try again: " << std::endl;
+				replace(turn);
+			}
+		}
+	}
+
+	bool checkWin() override
+	{
+		static const int winLines[8][3] = {
+			{0, 1, 2}, {3, 4, 5}, {6, 7, 8},
+			{0, 3, 6}, {1, 4, 7}, {2, 5, 8},
+			{0, 4, 8}, {2, 4, 6}
+		};
+
+		for (auto& winnerlines : winLines)
+		{
+			if (board[rows[winnerlines[0]]][cols[winnerlines[0]]] == board[rows[winnerlines[1]]][cols[winnerlines[1]]] &&
+				board[rows[winnerlines[1]]][cols[winnerlines[1]]] == board[rows[winnerlines[2]]][cols[winnerlines[2]]])
+				return true;
+		}
+		return false;
+	}
+
+	void setBoard() override
+	{
+		char num = '0';
+		for (int i = 0; i < 3; i++)
+		{
+			for (int j = 0; j < 3; j++)
+			{
+				board[i][j] = num;
+				num++;
+			}
+		}
+
+
+		memset(spotCheck, false, sizeof(spotCheck));
+	}
+};
+
+class Connect4 : public IGame
+{
+private:
+	char board[6][7];
+	bool spotCheck[6][7];
+
+public:
+	void printBoard()
+	{
+		std::cout << std::endl;
+		std::cout << board[0][0] << " | " << board[0][1] << " | " << board[0][2] << " | " << board[0][3] << " | " << board[0][4] << " | " << board[0][5] << " | " << board[0][6] << std::endl;
+		std::cout << board[1][0] << " | " << board[1][1] << " | " << board[1][2] << " | " << board[1][3] << " | " << board[1][4] << " | " << board[1][5] << " | " << board[1][6] << std::endl;
+		std::cout << board[2][0] << " | " << board[2][1] << " | " << board[2][2] << " | " << board[2][3] << " | " << board[2][4] << " | " << board[2][5] << " | " << board[2][6] << std::endl;
+		std::cout << board[3][0] << " | " << board[3][1] << " | " << board[3][2] << " | " << board[3][3] << " | " << board[3][4] << " | " << board[3][5] << " | " << board[3][6] << std::endl;
+		std::cout << board[4][0] << " | " << board[4][1] << " | " << board[4][2] << " | " << board[4][3] << " | " << board[4][4] << " | " << board[4][5] << " | " << board[4][6] << std::endl;
+		std::cout << board[5][0] << " | " << board[5][1] << " | " << board[5][2] << " | " << board[5][3] << " | " << board[5][4] << " | " << board[5][5] << " | " << board[5][6] << std::endl;
+		std::cout << std::endl;
+	}
+	bool checkTie();
+	bool checkSpot(int spot);
+	void replace(bool turn);
+	bool checkWin();
+	void setBoard()
+	{
+		int num = '0';
+		for (int i = 0; i < 6; ++i)
+		{
+			for (int j = 0; j < 7; ++j)
+			{
+				board[i][j] = num;
+				num++;
+			}
+		}
+		memset(spotCheck, false, sizeof(spotCheck));
+	}
 };
 
 class Game
@@ -125,13 +241,15 @@ private:
 	std::vector<Player> playerPool;
 	bool anotherGame = true;
 
-	Board board;
+	IGame* currentGame = nullptr;
 
 	Player* currPlayer1 = nullptr;
 	Player* currPlayer2 = nullptr;
 
 	void playerPoolEntry()
 	{
+		std::cout << "Please enter each name and press enter after each name\n";
+		std::cout << "If all names are entered, type 'end'\n";
 		std::string playerName;
 		while (!(playerName == "end"))
 		{
@@ -147,70 +265,35 @@ private:
 
 	void welcomeMessage()
 	{
-		std::cout << "Welcome to group tictactoe" << std::endl;
-		std::cout << "Enter each player's name and press enter after each name, when done please enter 'end' (just like that in all caps)" << std::endl;
+		std::cout << "Welcome to Kev's Games" << std::endl;
 	}
 
-	void printBoard()
+	void selectGame()
 	{
-		std::cout << std::endl;
-		std::cout << board.board[0] << " | " << board.board[1] << " | " << board.board[2] << std::endl;
-		std::cout << "---------" << std::endl;
-		std::cout << board.board[3] << " | " << board.board[4] << " | " << board.board[5] << std::endl;
-		std::cout << "---------" << std::endl;
-		std::cout << board.board[6] << " | " << board.board[7] << " | " << board.board[8] << std::endl;
-		std::cout << std::endl;
-	}
+		int choice;
+		std::cout << "Select a game by typing in the number of the game you would like to play: \n";
+		std::cout << "1. Tic Tac Toe\n";
+		std::cout << "2. Connect Four\n";
+		std::cin >> choice;
 
-	bool checkCat()
-	{
-		int count = 0;
-		for (int i = 0; i < board.spotCheck.size(); ++i)
+		delete currentGame;
+
+		switch (choice)
 		{
-			if (checkSpot(i))
+			case 1:
 			{
-				count++;
+				currentGame = new TTT();
+				break;
 			}
-		}
-		if (count == 9)
-		{
-			end = true;
-			std::cout << std::endl;
-			std::cout << " No Winners " << std::endl;
-			return true;
-		}
-		return false;
-	}
-
-	bool checkSpot(int spot)
-	{
-		if (board.spotCheck[spot] == true)
-		{
-			return true;
-		}
-		return false;
-	}
-
-	void replace()
-	{
-		int input;
-		std::cin >> input;
-		if (input >= 9 || input <= -1)
-		{
-			std::cout << "Invalid input, please try again: " << std::endl;
-			replace();
-		}
-		else
-		{
-			if (!checkSpot(input))
+			case 2:
 			{
-				board.board[input] = turn ? 'X' : 'O';
-				board.spotCheck[input] = true;
+				currentGame = new Connect4;
+				break;
 			}
-			else
+			default:
 			{
-				std::cout << "Invalid input, please try again: " << std::endl;
-				replace();
+				std::cout << "invalid selection please try again\n";
+				selectGame();
 			}
 		}
 	}
@@ -258,121 +341,75 @@ private:
 		}
 	}
 
-	bool checkWin()
+	void updateStats(Player* currPlayerWin, Player* currPlayerLoss)
 	{
-		if (board.board[0] == board.board[1] && board.board[1] == board.board[2]) { return true; }
-		else if (board.board[3] == board.board[4] && board.board[4] == board.board[5]) { return true; }
-		else if (board.board[6] == board.board[7] && board.board[7] == board.board[8]) { return true; }
-		else if (board.board[0] == board.board[3] && board.board[3] == board.board[6]) { return true; }
-		else if (board.board[1] == board.board[4] && board.board[4] == board.board[7]) { return true; }
-		else if (board.board[2] == board.board[5] && board.board[5] == board.board[8]) { return true; }
-		else if (board.board[0] == board.board[4] && board.board[4] == board.board[8]) { return true; }
-		else if (board.board[2] == board.board[4] && board.board[4] == board.board[6]) { return true; }
-		else { return false; }
-	}
+		currentGame->printBoard();
 
-	void updateStats()
-	{
-		printBoard();
-
-		if (turn)
+		currPlayerWin->addWin();
+		if (currPlayerWin->getStreaking() == false)
 		{
-			currPlayer1->addWin();
-			if (currPlayer1->getStreaking() == false)
-			{
-				currPlayer1->setStreaking(true);
-			}
-			if (currPlayer1->getCurrWinStreak() == 5)
-			{
-				if (currPlayer1->getTitle() != "Yokozuna ")
-				{
-					currPlayer1->setTitle("Yokozuna ");
-				}
-			}
-			std::cout << currPlayer1->getTitle() << currPlayer1->getName() << "'s Wins: " << currPlayer1->getWins() << "  Losses: " << currPlayer1->getLosses() << "  Current Win Streak: " << currPlayer1->getCurrWinStreak() << std::endl;
-
-			if (currPlayer2->getStreaking() == true)
-			{
-				currPlayer2->setStreaking(false);
-				currPlayer2->setCurrWinStreak(0);
-			}
-			currPlayer2->addLoss();
-			std::cout << currPlayer2->getTitle() << currPlayer2->getName() << "'s Wins: " << currPlayer2->getWins() << "  Losses: " << currPlayer2->getLosses() << "  Current Win Streak: " << currPlayer2->getCurrWinStreak() << std::endl;
+			currPlayerWin->setStreaking(true);
 		}
-		else
+		if (currPlayerWin->getCurrWinStreak() == 5)
 		{
-			currPlayer2->addWin();
-			if (currPlayer2->getStreaking() == false)
+			if (currPlayerWin->getTitle() != "Yokozuna ")
 			{
-				currPlayer2->setStreaking(true);
+				currPlayerWin->setTitle("Yokozuna ");
 			}
-			if (currPlayer2->getCurrWinStreak() == 5)
-			{
-				if (currPlayer2->getTitle() != "Yokozuna ")
-				{
-					currPlayer2->setTitle("Yokozuna ");
-				}
-			}
-			std::cout << currPlayer2->getTitle() << currPlayer2->getName() << "'s Wins: " << currPlayer2->getWins() << "  Losses: " << currPlayer2->getLosses() << "  Current Win Streak: " << currPlayer2->getCurrWinStreak() << std::endl;
-
-			if (currPlayer1->getStreaking() == true)
-			{
-				currPlayer1->setStreaking(false);
-				currPlayer1->setCurrWinStreak(0);
-			}
-			currPlayer1->addLoss();
-			std::cout << currPlayer1->getTitle() << currPlayer1->getName() << "'s Wins: " << currPlayer1->getWins() << "  Losses: " << currPlayer1->getLosses() << "  Current Win Streak: " << currPlayer1->getCurrWinStreak() << std::endl;
 		}
+		std::cout << currPlayerWin->getTitle() << currPlayerWin->getName() << "'s Wins: " << currPlayerWin->getWins() << "  Losses: " << currPlayerWin->getLosses() << "  Current Win Streak: " << currPlayerWin->getCurrWinStreak() << std::endl;
 
-		if (checkCat())
+		if (currPlayerLoss->getStreaking() == true)
+		{
+			currPlayerLoss->setStreaking(false);
+			currPlayerLoss->setCurrWinStreak(0);
+		}
+		currPlayerLoss->addLoss();
+		std::cout << currPlayerLoss->getTitle() << currPlayerLoss->getName() << "'s Wins: " << currPlayerLoss->getWins() << "  Losses: " << currPlayerLoss->getLosses() << "  Current Win Streak: " << currPlayerLoss->getCurrWinStreak() << std::endl;
+
+
+		if (currentGame->checkTie())
 		{
 			std::cout << "Game was a tie" << std::endl;
-			std::cout << currPlayer1->getTitle() << currPlayer1->getName() << "'s Wins: " << currPlayer1->getWins() << "  Losses: " << currPlayer1->getLosses() << "  Current Win Streak: " << currPlayer1->getCurrWinStreak() << std::endl;
-			std::cout << currPlayer2->getTitle() << currPlayer2->getName() << "'s Wins: " << currPlayer2->getWins() << "  Losses: " << currPlayer2->getLosses() << "  Current Win Streak: " << currPlayer2->getCurrWinStreak() << std::endl;
+			std::cout << currPlayerWin->getTitle() << currPlayerWin->getName() << "'s Wins: " << currPlayerWin->getWins() << "  Losses: " << currPlayerWin->getLosses() << "  Current Win Streak: " << currPlayerWin->getCurrWinStreak() << std::endl;
+			std::cout << currPlayerLoss->getTitle() << currPlayerLoss->getName() << "'s Wins: " << currPlayerLoss->getWins() << "  Losses: " << currPlayerLoss->getLosses() << "  Current Win Streak: " << currPlayerLoss->getCurrWinStreak() << std::endl;
 		}
-	}
-
-	void setBoard()
-	{
-		board.board = { '0', '1', '2',
-						'3', '4', '5',
-						'6', '7', '8', };
-
-		board.spotCheck = { false, false, false,
-							false, false, false,
-							false, false, false, };
 	}
 
 	void postGameQuestions()
 	{
-		std::string answer;
+		int answer;
 		std::cout << std::endl;
-		std::cout << " Would you like to play again? (yes/no)" << std::endl;
+		std::cout << "Welcome to the post game questions, please enter the number associated with how you would like to continue\n";
+		std::cout << "1. Play again with the same players\n";
+		std::cout << "2. Play again with a new set of players\n";
+		std::cout << "3. Play again but a new game\n";
+		std::cout << "4. End the program\n";
 		std::cin >> answer;
-		
-		if (answer == "yes")
-		{
-			std::string answer3;
-			std::cout << std::endl;
-			std::cout << "Same players? (yes/no)" << std::endl;
-			std::cin >> answer3;
-			if (answer3 == "yes")
-			{
-				anotherGame = true;
-				end = false;
-				setBoard();
-				return;
-			}
-			else
-			{
-				currPlayer1 = nullptr;
-				currPlayer2 = nullptr;
-				playerSelection();
-				anotherGame = true;
-				end = false;
-				setBoard();
 
-			}
+		if (answer == 1)
+		{
+			anotherGame = true;
+			end = false;
+			currentGame->setBoard();
+		}
+		else if (answer == 2)
+		{
+			currPlayer1 = nullptr;
+			currPlayer2 = nullptr;
+			playerSelection();
+			anotherGame = true;
+			end = false;
+			currentGame->setBoard();
+		}
+		else if (answer == 3)
+		{
+			currPlayer1 = nullptr;
+			currPlayer2 = nullptr;
+			playerSelection();
+			anotherGame = true;
+			selectGame();
+			//enter on how to redirect to another game
 		}
 		else
 		{
@@ -389,36 +426,37 @@ private:
 
 	void gameLoop()
 	{
+		currentGame->setBoard();
 		while (!end)
 		{
-			printBoard();
+			currentGame->printBoard();
 
 			if (turn)
 			{
-				std::cout << currPlayer1->getTitle() << currPlayer1->getName() << "(X) Please enter your first move:" << std::endl;
-				replace();
-				if (checkWin())
+				std::cout << currPlayer1->getTitle() << currPlayer1->getName() << "(" << (turn ? 'X' : 'O') << ") Please enter your first move : " << std::endl;
+				currentGame->replace(turn);
+				if (currentGame->checkWin())
 				{
-					updateStats();
+					updateStats(currPlayer1, currPlayer2);
 					break;
 				}
 				turn = false;
 			}
 			else
 			{
-				std::cout << currPlayer2->getTitle() << currPlayer2->getName() << "(O) Please enter your first move:" << std::endl;
-				replace();
-				if (checkWin())
+				std::cout << currPlayer2->getTitle() << currPlayer2->getName() << "(" << (turn ? 'X' : 'O') << ") Please enter your first move:" << std::endl;
+				currentGame->replace(turn);
+				if (currentGame->checkWin())
 				{
-					updateStats();
+					updateStats(currPlayer2, currPlayer1);
 					break;
 				}
 				turn = true;
 			}
-			checkWin();
-			if (!checkWin())
+			currentGame->checkWin();
+			if (!currentGame->checkWin())
 			{
-				checkCat();
+				currentGame->checkTie();
 			}
 		}
 		postGameQuestions();
@@ -427,13 +465,19 @@ private:
 public:
 
 	Game() {};
-	~Game() {};
+	~Game()
+	{
+		delete currentGame;
+	}
 
 	void runGame()
 	{
-		setBoard();
 		welcomeMessage();
-		playerPoolEntry();
+		selectGame();
+		if (playerPool.empty())
+		{
+			playerPoolEntry();
+		}
 		playerSelection();
 
 		while (anotherGame == true)
