@@ -287,7 +287,7 @@ private:
 			}
 			case 2:
 			{
-				currentGame = new Connect4;
+				currentGame = new Connect4();
 				break;
 			}
 			default:
