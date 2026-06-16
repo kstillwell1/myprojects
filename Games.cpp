@@ -118,16 +118,16 @@ public:
 	{
 		int count = 0;
 		for (int i = 0; i < 3; i++)
-			for (int j = 0; j < 3; j++)
-				if (spotCheck[i][j] == true)
-					count++;
-
-		if (count == 9)
 		{
-			return true;
+			for (int j = 0; j < 3; j++)
+			{
+				if (!spotCheck[i][j])
+				{
+					return false;
+				}
+			}
 		}
-
-		return false;
+		return true;
 	}
 
 	bool checkSpot(int spot) override
@@ -146,7 +146,6 @@ public:
 		}
 		else
 		{
-
 			int rows = input / 3;
 			int cols = input % 3;
 
@@ -393,7 +392,7 @@ private:
 
 	void playerSelection()
 	{
-		while (currPlayer1 == nullptr)
+		if (currPlayer1 == nullptr)
 		{
 			std::cout << "Enter the Name of the first player and then press enter: " << std::endl;
 			std::string playerNameInput;
@@ -413,7 +412,7 @@ private:
 			}
 		}
 
-		while (currPlayer2 == nullptr)
+		if (currPlayer2 == nullptr)
 		{
 			std::cout << "Enter the Name of the second player and then press enter: " << std::endl;
 			std::string playerNameInput2;
