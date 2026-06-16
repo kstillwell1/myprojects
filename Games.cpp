@@ -123,7 +123,9 @@ public:
 					count++;
 
 		if (count == 9)
+		{
 			return true;
+		}
 
 		return false;
 	}
@@ -222,9 +224,9 @@ public:
 
 	bool checkTie() override
 	{
-		for (int i = 0; i < 5; ++i)
+		for (int i = 0; i < 6; ++i)
 		{
-			for (int j = 0; j < 6; ++j)
+			for (int j = 0; j < 7; ++j)
 			{
 				if (!board[i][j])
 				{
@@ -436,6 +438,14 @@ private:
 	{
 		currentGame->printBoard();
 
+		if (currentGame->checkTie())
+		{
+			std::cout << "Game was a tie" << std::endl;
+			std::cout << currPlayerWin->getTitle() << currPlayerWin->getName() << "'s Wins: " << currPlayerWin->getWins() << "  Losses: " << currPlayerWin->getLosses() << "  Current Win Streak: " << currPlayerWin->getCurrWinStreak() << std::endl;
+			std::cout << currPlayerLoss->getTitle() << currPlayerLoss->getName() << "'s Wins: " << currPlayerLoss->getWins() << "  Losses: " << currPlayerLoss->getLosses() << "  Current Win Streak: " << currPlayerLoss->getCurrWinStreak() << std::endl;
+			return;
+		}
+
 		currPlayerWin->addWin();
 		if (currPlayerWin->getStreaking() == false)
 		{
@@ -457,14 +467,6 @@ private:
 		}
 		currPlayerLoss->addLoss();
 		std::cout << currPlayerLoss->getTitle() << currPlayerLoss->getName() << "'s Wins: " << currPlayerLoss->getWins() << "  Losses: " << currPlayerLoss->getLosses() << "  Current Win Streak: " << currPlayerLoss->getCurrWinStreak() << std::endl;
-
-
-		if (currentGame->checkTie())
-		{
-			std::cout << "Game was a tie" << std::endl;
-			std::cout << currPlayerWin->getTitle() << currPlayerWin->getName() << "'s Wins: " << currPlayerWin->getWins() << "  Losses: " << currPlayerWin->getLosses() << "  Current Win Streak: " << currPlayerWin->getCurrWinStreak() << std::endl;
-			std::cout << currPlayerLoss->getTitle() << currPlayerLoss->getName() << "'s Wins: " << currPlayerLoss->getWins() << "  Losses: " << currPlayerLoss->getLosses() << "  Current Win Streak: " << currPlayerLoss->getCurrWinStreak() << std::endl;
-		}
 	}
 
 	void postGameQuestions()
@@ -521,6 +523,8 @@ private:
 
 	void gameLoop()
 	{
+		selectGame();
+		playerSelection();
 		currentGame->setBoard();
 		while (!end)
 		{
@@ -548,10 +552,11 @@ private:
 				}
 				turn = true;
 			}
-			currentGame->checkWin();
-			if (!currentGame->checkWin())
+			if (currentGame->checkTie())
 			{
-				currentGame->checkTie();
+				std::cout << "Game is a tie!" << std::endl;
+				updateStats(currPlayer1, currPlayer2);
+				break;
 			}
 		}
 		postGameQuestions();
@@ -573,9 +578,6 @@ public:
 		{
 			playerPoolEntry();
 		}
-
-		selectGame();
-		playerSelection();
 
 		while (!endProgram)
 		{
