@@ -228,7 +228,7 @@ public:
 		{
 			for (int j = 0; j < 7; ++j)
 			{
-				if (!board[i][j])
+				if (!spotCheck[i][j])
 				{
 					return false;
 				}
@@ -438,14 +438,6 @@ private:
 	{
 		currentGame->printBoard();
 
-		if (currentGame->checkTie())
-		{
-			std::cout << "Game was a tie" << std::endl;
-			std::cout << currPlayerWin->getTitle() << currPlayerWin->getName() << "'s Wins: " << currPlayerWin->getWins() << "  Losses: " << currPlayerWin->getLosses() << "  Current Win Streak: " << currPlayerWin->getCurrWinStreak() << std::endl;
-			std::cout << currPlayerLoss->getTitle() << currPlayerLoss->getName() << "'s Wins: " << currPlayerLoss->getWins() << "  Losses: " << currPlayerLoss->getLosses() << "  Current Win Streak: " << currPlayerLoss->getCurrWinStreak() << std::endl;
-			return;
-		}
-
 		currPlayerWin->addWin();
 		if (currPlayerWin->getStreaking() == false)
 		{
@@ -484,7 +476,6 @@ private:
 		{
 			case 1:
 			{
-				endProgram = false;
 				currentGame->setBoard();
 				break;
 			}
@@ -493,13 +484,11 @@ private:
 				currPlayer1 = nullptr;
 				currPlayer2 = nullptr;
 				playerSelection();
-				endProgram = false;
 				currentGame->setBoard();
 				break;
 			}
 			case 3:
 			{
-				endProgram = false;
 				selectGame();
 				currPlayer1 = nullptr;
 				currPlayer2 = nullptr;
@@ -523,8 +512,6 @@ private:
 
 	void gameLoop()
 	{
-		selectGame();
-		playerSelection();
 		currentGame->setBoard();
 		while (!end)
 		{
@@ -554,8 +541,10 @@ private:
 			}
 			if (currentGame->checkTie())
 			{
-				std::cout << "Game is a tie!" << std::endl;
-				updateStats(currPlayer1, currPlayer2);
+				currentGame->printBoard();
+				std::cout << "Game was a tie" << std::endl;
+				std::cout << currPlayer1->getTitle() << currPlayer1->getName() << "'s Wins: " << currPlayer1->getWins() << "  Losses: " << currPlayer1->getLosses() << "  Current Win Streak: " << currPlayer1->getCurrWinStreak() << std::endl;
+				std::cout << currPlayer2->getTitle() << currPlayer2->getName() << "'s Wins: " << currPlayer2->getWins() << "  Losses: " << currPlayer2->getLosses() << "  Current Win Streak: " << currPlayer2->getCurrWinStreak() << std::endl;
 				break;
 			}
 		}
@@ -578,6 +567,9 @@ public:
 		{
 			playerPoolEntry();
 		}
+
+		selectGame();
+		playerSelection();
 
 		while (!endProgram)
 		{
