@@ -98,9 +98,6 @@ class TTT : public IGame
 {
 private:
 
-	int rows[9] = { 0, 0, 0, 1, 1, 1, 2, 2, 2 };
-	int cols[9] = { 0, 1, 2, 0, 1, 2, 0, 1, 2 };
-
 	char board[3][3];
 	bool spotCheck[3][3];
 
@@ -133,9 +130,7 @@ public:
 
 	bool checkSpot(int spot) override
 	{
-		if (spotCheck[rows[spot]][cols[spot]] == true)
-			return true;
-		return false;
+		return spotCheck[spot / 3][spot % 3];
 	}
 
 	void replace(bool turn) override
@@ -149,10 +144,14 @@ public:
 		}
 		else
 		{
+
+			int rows = input / 3;
+			int cols = input % 3;
+
 			if (!checkSpot(input))
 			{
-				board[rows[input]][cols[input]] = turn ? 'X' : 'O';
-				spotCheck[rows[input]][cols[input]] = true;
+				board[rows][cols] = turn ? 'X' : 'O';
+				spotCheck[rows][cols] = true;
 			}
 			else
 			{
@@ -164,21 +163,21 @@ public:
 
 	bool checkWin() override
 	{
-		static const int winLines[8][3] = 
+		static const int winLines[8][3][2] =
 		{
-			{0, 1, 2}, 
-			{3, 4, 5}, 
-			{6, 7, 8},
-			{0, 3, 6}, 
-			{1, 4, 7}, 
-			{2, 5, 8},
-			{0, 4, 8}, 
-			{2, 4, 6}
+			{{0,0}, {0,1}, {0,2}},
+			{{1,0}, {1,1}, {1,2}},
+			{{2,0}, {2,1}, {2,2}},
+			{{0,0}, {1,0}, {2,0}},
+			{{0,1}, {1,1}, {2,1}},
+			{{0,2}, {1,2}, {2,2}},
+			{{0,0}, {1,1}, {2,2}},
+			{{0,2}, {1,1}, {2,0}} 
 		};
 
-		for (auto& winnerlines : winLines)
+		for (auto& line : winLines)
 		{
-			if (board[rows[winnerlines[0]]][cols[winnerlines[0]]] == board[rows[winnerlines[1]]][cols[winnerlines[1]]] && board[rows[winnerlines[1]]][cols[winnerlines[1]]] == board[rows[winnerlines[2]]][cols[winnerlines[2]]])
+			if (board[line[0][0]][line[0][1]] == board[line[1][0]][line[1][1]] && board[line[1][0]][line[1][1]] == board[line[2][0]][line[2][1]])
 				return true;
 		}
 		return false;
