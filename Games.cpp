@@ -1,5 +1,3 @@
-// need to finished implementing the changes on the connect 4 class
-
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -174,8 +172,7 @@ public:
 
 		for (auto& winnerlines : winLines)
 		{
-			if (board[rows[winnerlines[0]]][cols[winnerlines[0]]] == board[rows[winnerlines[1]]][cols[winnerlines[1]]] &&
-				board[rows[winnerlines[1]]][cols[winnerlines[1]]] == board[rows[winnerlines[2]]][cols[winnerlines[2]]])
+			if (board[rows[winnerlines[0]]][cols[winnerlines[0]]] == board[rows[winnerlines[1]]][cols[winnerlines[1]]] && board[rows[winnerlines[1]]][cols[winnerlines[1]]] == board[rows[winnerlines[2]]][cols[winnerlines[2]]])
 				return true;
 		}
 		return false;
@@ -218,9 +215,59 @@ public:
 		std::cout << std::endl;
 	}
 
-	bool checkTie() override;
-	bool checkSpot(int spot) override;
-	void replace(bool turn) override;
+	bool checkTie() override
+	{
+		for (int i = 0; i < 5; ++i)
+		{
+			for (int j = 0; j < 6; ++j)
+			{
+				if (!board[i][j])
+				{
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	bool checkSpot(int spot) override
+	{
+		return spotCheck[0][spot] == true;
+	}
+
+	void replace(bool turn) override
+	{
+		int col;
+		std::cin >> col;
+
+		if (col < 0 || col > 6)
+		{
+			std::cout << "Invalid input, please try again: " << std::endl;
+			replace(turn);
+			return;
+		}
+		else
+		{
+			if (checkSpot(col))
+			{
+				std::cout << "Column is full, please try again: " << std::endl;
+				replace(turn);
+				return;
+			}
+			else
+			{
+				for (int i = 5; i >= 0; --i)
+				{
+					if (!spotCheck[i][col])
+					{
+						board[i][col] = turn ? 'X' : 'O';
+						spotCheck[i][col] = true;
+						break;
+					}
+				}
+			}
+		}
+	}
 
 	bool checkWin() override
 	{
@@ -228,7 +275,7 @@ public:
 		{
 			for (int j = 0; j < 4; j++)
 			{
-				if (board[i][j] == board[i][j + 1] && board[i][j] == board[i][j + 2] && board[i][j] == board[i][j + 3])
+				if (board[i][j] != '-' && board[i][j] == board[i][j + 1] && board[i][j] == board[i][j + 2] && board[i][j] == board[i][j + 3])
 					return true;
 			}
 		}
@@ -236,7 +283,7 @@ public:
 		{
 			for (int j = 0; j < 7; j++)
 			{
-				if (board[i][j] == board[i + 1][j] && board[i][j] == board[i + 2][j] && board[i][j] == board[i + 3][j])
+				if (board[i][j] != '-' && board[i][j] == board[i + 1][j] && board[i][j] == board[i + 2][j] && board[i][j] == board[i + 3][j])
 					return true;
 			}
 		}
@@ -244,7 +291,7 @@ public:
 		{
 			for (int j = 0; j < 4; j++)
 			{
-				if (board[i][j] == board[i + 1][j + 1] && board[i][j] == board[i + 2][j + 2] && board[i][j] == board[i + 3][j + 3])
+				if (board[i][j] != '-' && board[i][j] == board[i + 1][j + 1] && board[i][j] == board[i + 2][j + 2] && board[i][j] == board[i + 3][j + 3])
 					return true;
 			}
 		}
@@ -252,22 +299,20 @@ public:
 		{
 			for (int j = 3; j < 7; j++)
 			{
-				if (board[i][j] == board[i + 1][j - 1] && board[i][j] == board[i + 2][j - 2] && board[i][j] == board[i + 3][j - 3])
+				if (board[i][j] != '-' && board[i][j] == board[i + 1][j - 1] && board[i][j] == board[i + 2][j - 2] && board[i][j] == board[i + 3][j - 3])
 					return true;
 			}
 		}
 		return false;
 	}
 
-	void setBoard() override 
+	void setBoard() override
 	{
-		int num = '0';
 		for (int i = 0; i < 6; ++i)
 		{
 			for (int j = 0; j < 7; ++j)
 			{
-				board[i][j] = num;
-				num++;
+				board[i][j] = '-';
 			}
 		}
 		memset(spotCheck, false, sizeof(spotCheck));
@@ -280,7 +325,7 @@ private:
 	bool turn = true;
 	bool end = false;
 	std::vector<Player> playerPool;
-	bool anotherGame = true;
+	bool endProgram = false;
 
 	IGame* currentGame = nullptr;
 
@@ -321,21 +366,21 @@ private:
 
 		switch (choice)
 		{
-			case 1:
-			{
-				currentGame = new TTT();
-				break;
-			}
-			case 2:
-			{
-				currentGame = new Connect4();
-				break;
-			}
-			default:
-			{
-				std::cout << "invalid selection please try again\n";
-				selectGame();
-			}
+		case 1:
+		{
+			currentGame = new TTT();
+			break;
+		}
+		case 2:
+		{
+			currentGame = new Connect4();
+			break;
+		}
+		default:
+		{
+			std::cout << "invalid selection please try again\n";
+			selectGame();
+		}
 		}
 	}
 
@@ -428,40 +473,44 @@ private:
 		std::cout << "4. End the program\n";
 		std::cin >> answer;
 
-		if (answer == 1)
+		switch (answer)
 		{
-			anotherGame = true;
-			end = false;
-			currentGame->setBoard();
-		}
-		else if (answer == 2)
-		{
-			currPlayer1 = nullptr;
-			currPlayer2 = nullptr;
-			playerSelection();
-			anotherGame = true;
-			end = false;
-			currentGame->setBoard();
-		}
-		else if (answer == 3)
-		{
-			currPlayer1 = nullptr;
-			currPlayer2 = nullptr;
-			playerSelection();
-			anotherGame = true;
-			selectGame();
-			//enter on how to redirect to another game
-		}
-		else
-		{
-			std::cout << "Thanks for playing Group TicTacToe by Stilly, Below you final the final stats for all players. " << std::endl;
-			std::cout << std::endl;
-			for (int i = 0; i < playerPool.size(); ++i)
+			case 1:
 			{
-				std::cout << playerPool[i].getTitle() << playerPool[i].getName() << "  Wins: " << playerPool[i].getWins() << "  Losses: " << playerPool[i].getLosses() << "  Current Win Streak: " << playerPool[i].getCurrWinStreak() << std::endl;
+				endProgram = false;
+				currentGame->setBoard();
+				break;
 			}
-			anotherGame = false;
-			end = true;
+			case 2:
+			{
+				currPlayer1 = nullptr;
+				currPlayer2 = nullptr;
+				playerSelection();
+				endProgram = false;
+				currentGame->setBoard();
+				break;
+			}
+			case 3:
+			{
+				endProgram = false;
+				selectGame();
+				currPlayer1 = nullptr;
+				currPlayer2 = nullptr;
+				playerSelection();
+				break;
+			}
+			default:
+			{
+				std::cout << "Thanks for playing Group TicTacToe by Stilly, Below you final the final stats for all players. " << std::endl;
+				std::cout << std::endl;
+				for (int i = 0; i < playerPool.size(); ++i)
+				{
+					std::cout << playerPool[i].getTitle() << playerPool[i].getName() << "  Wins: " << playerPool[i].getWins() << "  Losses: " << playerPool[i].getLosses() << "  Current Win Streak: " << playerPool[i].getCurrWinStreak() << std::endl;
+				}
+				endProgram = true;
+				end = true;
+				break;
+			}
 		}
 	}
 
@@ -474,7 +523,7 @@ private:
 
 			if (turn)
 			{
-				std::cout << currPlayer1->getTitle() << currPlayer1->getName() << "(" << (turn ? 'X' : 'O') << ") Please enter your first move : " << std::endl;
+				std::cout << currPlayer1->getTitle() << currPlayer1->getName() << "(" << (turn ? 'X' : 'O') << ") Please enter your move : " << std::endl;
 				currentGame->replace(turn);
 				if (currentGame->checkWin())
 				{
@@ -485,7 +534,7 @@ private:
 			}
 			else
 			{
-				std::cout << currPlayer2->getTitle() << currPlayer2->getName() << "(" << (turn ? 'X' : 'O') << ") Please enter your first move:" << std::endl;
+				std::cout << currPlayer2->getTitle() << currPlayer2->getName() << "(" << (turn ? 'X' : 'O') << ") Please enter your move:" << std::endl;
 				currentGame->replace(turn);
 				if (currentGame->checkWin())
 				{
@@ -514,14 +563,16 @@ public:
 	void runGame()
 	{
 		welcomeMessage();
-		selectGame();
+
 		if (playerPool.empty())
 		{
 			playerPoolEntry();
 		}
+
+		selectGame();
 		playerSelection();
 
-		while (anotherGame == true)
+		while (!endProgram)
 		{
 			gameLoop();
 		}
