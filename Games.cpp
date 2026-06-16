@@ -173,7 +173,7 @@ public:
 			{{0,1}, {1,1}, {2,1}},
 			{{0,2}, {1,2}, {2,2}},
 			{{0,0}, {1,1}, {2,2}},
-			{{0,2}, {1,1}, {2,0}} 
+			{{0,2}, {1,1}, {2,0}}
 		};
 
 		for (auto& line : winLines)
@@ -473,39 +473,34 @@ private:
 
 		switch (answer)
 		{
-			case 1:
+		case 1:
+		{
+			currentGame->setBoard();
+			break;
+		}
+		case 3:
+		{
+			selectGame();
+		}
+		case 2:
+		{
+			currPlayer1 = nullptr;
+			currPlayer2 = nullptr;
+			playerSelection();
+			break;
+		}
+		default:
+		{
+			std::cout << "Thanks for playing Group TicTacToe by Stilly, Below you final the final stats for all players. " << std::endl;
+			std::cout << std::endl;
+			for (int i = 0; i < playerPool.size(); ++i)
 			{
-				currentGame->setBoard();
-				break;
+				std::cout << playerPool[i].getTitle() << playerPool[i].getName() << "  Wins: " << playerPool[i].getWins() << "  Losses: " << playerPool[i].getLosses() << "  Current Win Streak: " << playerPool[i].getCurrWinStreak() << std::endl;
 			}
-			case 2:
-			{
-				currPlayer1 = nullptr;
-				currPlayer2 = nullptr;
-				playerSelection();
-				currentGame->setBoard();
-				break;
-			}
-			case 3:
-			{
-				selectGame();
-				currPlayer1 = nullptr;
-				currPlayer2 = nullptr;
-				playerSelection();
-				break;
-			}
-			default:
-			{
-				std::cout << "Thanks for playing Group TicTacToe by Stilly, Below you final the final stats for all players. " << std::endl;
-				std::cout << std::endl;
-				for (int i = 0; i < playerPool.size(); ++i)
-				{
-					std::cout << playerPool[i].getTitle() << playerPool[i].getName() << "  Wins: " << playerPool[i].getWins() << "  Losses: " << playerPool[i].getLosses() << "  Current Win Streak: " << playerPool[i].getCurrWinStreak() << std::endl;
-				}
-				endProgram = true;
-				end = true;
-				break;
-			}
+			endProgram = true;
+			end = true;
+			break;
+		}
 		}
 	}
 
