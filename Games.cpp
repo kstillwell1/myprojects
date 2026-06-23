@@ -491,7 +491,7 @@ private:
 		}
 		default:
 		{
-			std::cout << "Thanks for playing Group TicTacToe by Stilly, Below you final the final stats for all players. " << std::endl;
+			std::cout << "Thanks for playing!, Below you final the final stats for all players. " << std::endl;
 			std::cout << std::endl;
 			for (int i = 0; i < playerPool.size(); ++i)
 			{
